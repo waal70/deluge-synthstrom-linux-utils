@@ -3,7 +3,7 @@
 set -euo pipefail
 # FORCE_RESAMPLE will recreate the file, regardless of it meeting the requirements
 #  This can be used to strip metadata or fix other file encoding issues
-FORCE_RESAMPLE=true
+FORCE_RESAMPLE=false
 # User-defined variable for temporary file-system size
 # This should be larger than your largest sample file!
 TMPFS_SIZE=500M
@@ -37,7 +37,7 @@ check_audio_properties() {
 
   sudo mount -t tmpfs -o size="$TMPFS_SIZE" tmpfs "$tempdir"
 
-find "$1" -type f -name "*.wav" | while read -r f; do
+find "$1" -type f \( -name "*.wav" -o -name "*.mp3" \) | while read -r f; do
     f=$(realpath "$f")
     echo "Checking $f..."
     
@@ -53,6 +53,12 @@ find "$1" -type f -name "*.wav" | while read -r f; do
               "$samplerate" == "44100" && 
               "$bitdepth" == "16" ]]; then
             echo "File is already Deluge compliant: $f (skipping)"
+            if [[ "${f##*.}" != "wav" ]]; then
+                echo "RENAME ALERT ============== Renaming $f to ${f%.*}.wav"
+                mv "$f" "${f%.*}.wav"
+                f="${f%.*}.wav"
+                continue
+            fi
             continue
         fi
     fi
@@ -70,7 +76,7 @@ find "$1" -type f -name "*.wav" | while read -r f; do
         echo "File not found: $f"
         exit 1
     fi
-    if ffmpeg -i "$f" -hide_banner -loglevel info -stats \
+    if ffmpeg -i "$f" -hide_banner -loglevel error -stats \
                 -f wav \
                 -flags +bitexact \
                 -map_metadata -1 \
@@ -78,8 +84,8 @@ find "$1" -type f -name "*.wav" | while read -r f; do
                 -ar 44100 \
                 -y \
                 "$tempfile" </dev/null; then
-        mv -f "$tempfile" "$f"
-        echo "Succesfully processed: $f"
+        mv -f "$tempfile" "${f%.*}.wav"
+        echo "Succesfully processed: ${f%.*}.wav"
     else
         echo "Error while processing $f, skipping!" >&2
         rm -f "$tempfile"
