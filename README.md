@@ -1,43 +1,31 @@
 
 # Synthstrom Deluge utils
 
-## Multisample
-### Platforms
-- Mac OSX
-Splits recordings of multisamples into .WAV files for every note.
-Creates Deluge multisample XML preset files from folders (.WAV files)
+Forked from [https://github.com/amiga909/deluge-synthstrom-utils]
+Adapted by waal70 to work on Linux systems. Tested on Debian 12 (bookworm)
 
-## Fix missing samples
-### Platforms
-- Mac OSX, Linux, Windows 
-### Want to fix your samples in Songs, Kits and Synths after moving around folders on your SD card? 
-- Analyzes your XML Files and looks for missing samples. 
-- Fixes your XML Files and generates full report. 
-- A backup folder is created for overwritten files: _MISSING_SAMPLES_FIXER_ARCHIVE
-- Supported audio file extensions: .wav, .aif, .aiff
-- Samples with a '~' in their name are skipped: http://forums.synthstrom.com/discussion/1234/strange-sample-names-in-xml-files
-  
-### Run as NPM app
-- Clone this repository
-- cd missingsamplefixer
-- npm install
-- electron .
-### Build app
-- npm run pack
+## Requirements
+
+Have ffmpeg installed on your system
+''''sudo apt install ffmpeg
 
 ## samplefixer.sh
 
 ### Platforms
-- Mac OSX, (Linux, Windows Shell)
 
-### Want a tidy sample library? 
+- Linux (Debian bookworm)
+
+### Want a tidy sample library?
+
 - Get rid of "UNSUPPORTED" messages in the Synthstrom Deluge file browser
 - Place this script in the root directory of the SD Card
 - Consider a backup before running any write commands
 - Supported audio file extensions: .wav, .aif, .aiff
+- Will convert to 16bit/44100Hz. Use --resample to force resampling, which is sometimes needed
 
 ### Use cases
-- Analyze all data 
+
+- Analyze all data:
 `sh samplefixer.sh convert_clean`
 
 - Fix all data
@@ -58,19 +46,3 @@ Convert WAV files lower than 44kHz to 44kHz/16bit. No backup! Attention, disk us
 
 - **clean_write [PATH]**
 Delete non audio files and WAV samples Synthstrom Deluge might not be able to load. No backup!
-
-
-
-## archive_unused_recordings.rb
-
-### Platforms
-- Mac OSX, (Linux, Windows Shell)
-
-Script to remove unused samples on the Deluge SD Card
-currently only removes recordings
-`ruby archive_unused_recordings.rb`
-- recommended: create a backup of the SD Card first
-- place this script in the root dir of the SD card
-- all delete candidates are moved to the folder '_ARCHIVED', paths are preserved 
-
-
